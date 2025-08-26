@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # The Ollama AI Engine Service
+  # The AI Engine
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -12,27 +10,39 @@ services:
     networks:
       - app-network
 
-  # Your Go Backend Service
+  # The Go Backend Service (Integrated)
   backend:
     container_name: kube-openwebui-backend
-    # This tells Compose to build the image from the Dockerfile in the current directory
     build: .
     ports:
-      - "8080:8080"
-    # The environment variable our Go app needs to find Ollama
+      # We've moved the backend to port 8081 to avoid conflict with OpenWebUI
+      - "8081:8080"
     environment:
       - OLLAMA_HOST=http://ollama:11434
-    # This ensures the backend starts only after Ollama is ready
     depends_on:
       - ollama
     networks:
       - app-network
 
-# Define the shared network for container communication
+  # The Web Frontend (As you provided)
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "8080:8080"
+    environment:
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+    volumes:
+      - open_webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
-# Define the persistent volume for Ollama's models
 volumes:
   ollama_data:
+  open_webui_data:
