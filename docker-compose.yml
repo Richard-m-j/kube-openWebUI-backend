@@ -1,7 +1,8 @@
+
 services:
   # The Ollama AI Engine
   ollama:
-    image: ollama/ollama:latest
+    image: richardjoseph1/ollama-kube-openwebui:latest
     container_name: ollama
     ports:
       - "11434:11434"
