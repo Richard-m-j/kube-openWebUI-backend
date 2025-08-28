@@ -1,7 +1,6 @@
 services:
   # The Ollama AI Engine
   ollama:
-    # Uses the pre-built image from Docker Hub
     image: richardjoseph1/ollama-kube-openwebui:latest
     container_name: ollama
     ports:
@@ -29,20 +28,17 @@ services:
     build:
       context: ./kube-open-webui-frontend
     ports:
-      # Exposes your custom app on the standard HTTP port 80
       - "80:80"
     depends_on:
       - backend
     networks:
       - app-network
 
-  # The OpenWebUI Service (NEW!)
+  # The OpenWebUI Service 
   open-webui:
-    # Uses the pre-built image from Docker Hub
     image: richardjoseph1/open-webui-kube-openwebui:latest
     container_name: open-webui
     ports:
-      # Runs on port 8080 to avoid conflicting with your frontend
       - "8080:8080"
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
