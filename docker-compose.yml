@@ -24,7 +24,7 @@ services:
   # Your custom Vue.js Frontend Service
   frontend:
     container_name: modelmanager-frontend
-    image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
+    image: richardjoseph1/modelmanager-frontend-kube-openwebui:latest
     ports:
       - "80:80"
     depends_on:
