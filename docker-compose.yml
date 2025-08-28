@@ -12,7 +12,7 @@ services:
 
   # The Go Backend Service
   backend:
-    container_name: kube-openWebUI-backend
+    container_name: modelmanager-backend
     image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
     environment:
       - OLLAMA_HOST=http://ollama:11434
@@ -23,12 +23,12 @@ services:
 
   # Your custom Vue.js Frontend Service
   frontend:
-    container_name: kube-open-webui-frontend
+    container_name: modelmanager-frontend
     image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - modelmanager-backend
     networks:
       - app-network
 
