@@ -14,10 +14,9 @@ services:
   # The Go Backend Service
   backend:
     container_name: backend
-    # Builds the image from the Dockerfile in the './backend' directory
-    build:
-      context: ./kube-openWebUI-backend
+    image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
     # No ports are exposed to the host; it's only accessible via the frontend proxy
+
     environment:
       - OLLAMA_HOST=http://ollama:11434
     depends_on:
@@ -28,9 +27,8 @@ services:
   # The Vue.js Frontend Service
   frontend:
     container_name: kube-openwebui-frontend
-    # Builds the image from the Dockerfile in the './kube-OpenWebUI-frontend' directory
-    build:
-      context: ./kube-OpenWebUI-frontend
+    
+    image: richardjoseph1/modelmanager-frontend-kube-openwebui:latest
     ports:
       # Exposes the application on the standard HTTP port 80
       - "80:80"
