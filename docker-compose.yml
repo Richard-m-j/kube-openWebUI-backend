@@ -1,7 +1,7 @@
-
 services:
   # The Ollama AI Engine
   ollama:
+    # Uses the pre-built image from Docker Hub
     image: richardjoseph1/ollama-kube-openwebui:latest
     container_name: ollama
     ports:
@@ -13,10 +13,9 @@ services:
 
   # The Go Backend Service
   backend:
-    container_name: backend
-    image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
-    # No ports are exposed to the host; it's only accessible via the frontend proxy
-
+    container_name: kube-openWebUI-backend
+    build:
+      context: ./kube-openWebUI-backend
     environment:
       - OLLAMA_HOST=http://ollama:11434
     depends_on:
@@ -24,16 +23,33 @@ services:
     networks:
       - app-network
 
-  # The Vue.js Frontend Service
+  # Your custom Vue.js Frontend Service
   frontend:
-    container_name: kube-openwebui-frontend
-    
-    image: richardjoseph1/modelmanager-frontend-kube-openwebui:latest
+    container_name: kube-open-webui-frontend
+    build:
+      context: ./kube-open-webui-frontend
     ports:
-      # Exposes the application on the standard HTTP port 80
+      # Exposes your custom app on the standard HTTP port 80
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  # The OpenWebUI Service (NEW!)
+  open-webui:
+    # Uses the pre-built image from Docker Hub
+    image: richardjoseph1/open-webui-kube-openwebui:latest
+    container_name: open-webui
+    ports:
+      # Runs on port 8080 to avoid conflicting with your frontend
+      - "8080:8080"
+    environment:
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+    volumes:
+      - open_webui_data:/app/backend/data
+    depends_on:
+      - ollama
     networks:
       - app-network
 
@@ -43,3 +59,4 @@ networks:
 
 volumes:
   ollama_data:
+  open_webui_data:
