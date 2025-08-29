@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-webui
+spec:
+  selector:
+    app: open-webui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: open-webui
+spec:
+  serviceName: "open-webui"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-webui
+  template:
+    metadata:
+      labels:
+        app: open-webui
+    spec:
+      containers:
+      - name: open-webui
+        image: richardjoseph1/open-webui-kube-openwebui:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama:11434" # Connects to the ollama service
+        volumeMounts:
+        - name: open-webui-data
+          mountPath: /app/backend/data
+  volumeClaimTemplates:
+  - metadata:
+      name: open-webui-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
