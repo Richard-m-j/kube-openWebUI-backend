@@ -1,14 +1,17 @@
+# 03-open-webui.yml
 apiVersion: v1
 kind: Service
 metadata:
   name: open-webui
 spec:
+  type: NodePort # Exposes the service on each Node's IP at a static port.
   selector:
     app: open-webui
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+      nodePort: 30080 # Access via http://<your-node-ip>:30080
 ---
 apiVersion: apps/v1
 kind: StatefulSet

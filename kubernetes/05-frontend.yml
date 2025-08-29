@@ -1,14 +1,17 @@
+# 05-frontend.yml
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend
 spec:
+  type: NodePort # Exposes the service on each Node's IP at a static port.
   selector:
     app: frontend
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
+      nodePort: 30081 # Access via http://<your-node-ip>:30081
 ---
 apiVersion: apps/v1
 kind: Deployment

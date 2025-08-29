@@ -32,7 +32,7 @@ spec:
         - containerPort: 11434
         volumeMounts:
         - name: ollama-data
-          mountPath: /root/.ollama
+          mountPath: /ollama/.ollama
   volumeClaimTemplates: # This connects the pod to the PVC
   - metadata:
       name: ollama-data
@@ -40,4 +40,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 10Gi
+          storage: 5Gi
