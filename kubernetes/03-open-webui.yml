@@ -28,6 +28,10 @@ spec:
       labels:
         app: open-webui
     spec:
+      volumes: # Define the volume and link it to our PVC
+      - name: open-webui-data
+        persistentVolumeClaim:
+          claimName: open-webui-data-pvc
       containers:
       - name: open-webui
         image: richardjoseph1/open-webui-kube-openwebui:latest
@@ -36,14 +40,6 @@ spec:
         env:
         - name: OLLAMA_BASE_URL
           value: "http://ollama:11434" # Connects to the ollama service
-        volumeMounts:
+        volumeMounts: # Mount the volume defined above
         - name: open-webui-data
           mountPath: /app/backend/data
-  volumeClaimTemplates:
-  - metadata:
-      name: open-webui-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 5Gi

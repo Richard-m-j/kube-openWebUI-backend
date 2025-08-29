@@ -1,3 +1,4 @@
+# 02-ollama.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -25,19 +26,15 @@ spec:
       labels:
         app: ollama
     spec:
+      volumes: # Define the volume and link it to our PVC
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-data-pvc
       containers:
       - name: ollama
         image: richardjoseph1/ollama-kube-openwebui:latest
         ports:
         - containerPort: 11434
-        volumeMounts:
+        volumeMounts: # Mount the volume defined above
         - name: ollama-data
           mountPath: /ollama/.ollama
-  volumeClaimTemplates: # This connects the pod to the PVC
-  - metadata:
-      name: ollama-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 5Gi
