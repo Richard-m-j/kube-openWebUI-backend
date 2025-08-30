@@ -1,22 +1,25 @@
-# Set hostname to kmaster
-sudo hostnamectl set-hostname kmaster
+#!/bin/bash
+set -e
  
-# Initialize Kubernetes cluster
-sudo kubeadm init
+sudo hostnamectl set-hostname master
  
-# Configure kubectl for current user
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
- 
-# Check the status of nodes
-kubectl get nodes
- 
-# Apply Weave Net CNI plugin
-kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
- 
-# Check taints on kmaster node
-kubectl describe node kmaster | grep Taint
- 
-# Remove control-plane taint to allow scheduling pods on master
-kubectl taint node kmaster node-role.kubernetes.io/control-plane:NoSchedule- || true
+sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock
+# Configure kubeconfig for ubuntu user
+sudo mkdir -p /home/ubuntu/.kube
+sudo cp /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+# Install Weave Net CNI
+sudo -u ubuntu kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+# Wait until node is Ready
+echo "Waiting for node to become Ready..."
+until sudo -u ubuntu kubectl get nodes | grep -q ' Ready '; do
+    sleep 5
+done
+# Remove control-plane taint
+sudo -u ubuntu kubectl taint node $(hostname) node-role.kubernetes.io/control-plane:NoSchedule- || true
+# Wait for kube-system pods
+echo "Waiting for kube-system pods to be Ready..."
+until sudo -u ubuntu kubectl get pods -n kube-system | grep -Ev 'STATUS|Running' | wc -l | grep -q '^0$'; do
+    sleep 5
+done
+echo "Kubernetes control-plane setup complete."
