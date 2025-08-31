@@ -1,0 +1,135 @@
+# 07-network-policies.yml
+
+# 1. Deny all traffic by default.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+# 2. 'ollama' policy (Allows access from backend and openwebui).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ollama-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: ollama
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: openwebui
+    - podSelector:
+        matchLabels:
+          app: backend
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+# 3. 'backend' policy (Allows access from frontend, talks to ollama).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ollama
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+# 4. NEW 'frontend' specific policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow external traffic via NodePort.
+  - {}
+  egress:
+  # Allow traffic ONLY to the backend.
+  - to:
+    - podSelector:
+        matchLabels:
+          app: backend
+  # Allow DNS resolution.
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+# 5. NEW 'openwebui' specific policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openwebui-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: openwebui
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow external traffic via NodePort.
+  - {}
+  egress:
+  # Allow traffic ONLY to ollama.
+  - to:
+    - podSelector:
+        matchLabels:
+          app: ollama
+  # Allow DNS resolution.
+  - to:
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
