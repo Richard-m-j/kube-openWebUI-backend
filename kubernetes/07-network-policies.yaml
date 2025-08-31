@@ -25,34 +25,12 @@ spec:
   - from:
     - podSelector:
         matchLabels:
-          app: openwebui
+          app: open-webui
     - podSelector:
         matchLabels:
           app: backend
   egress:
-  # Rule 1: Allow DNS lookups to kube-dns
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-  # Rule 2: NEW - Allow model downloads over HTTPS to specific IPs
-  - to:
-    # IPs for ollama.ai
-    - ipBlock:
-        cidr: 104.21.75.227/32
-    - ipBlock:
-        cidr: 172.67.182.229/32
-    ports:
-    - protocol: TCP
-      port: 443
+  - {}
 ---
 # 3. 'backend' policy 
 apiVersion: networking.k8s.io/v1
