@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ollama # The DNS name other pods will use to connect
+  name: ollama
 spec:
   selector:
     app: ollama
@@ -26,7 +26,7 @@ spec:
       labels:
         app: ollama
     spec:
-      volumes: # Define the volume and link it to our PVC
+      volumes:
       - name: ollama-data
         persistentVolumeClaim:
           claimName: ollama-data-pvc
@@ -35,6 +35,6 @@ spec:
         image: richardjoseph1/ollama-kube-openwebui:latest
         ports:
         - containerPort: 11434
-        volumeMounts: # Mount the volume defined above
+        volumeMounts:
         - name: ollama-data
           mountPath: /ollama/.ollama

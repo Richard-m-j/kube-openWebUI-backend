@@ -1,10 +1,22 @@
+# 01-persistent-volume-claims.yml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: ollama-data-pvc
 spec:
   accessModes:
-    - ReadWriteOnce 
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi 
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: open-webui-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

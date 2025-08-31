@@ -1,6 +1,6 @@
 # 07-network-policies.yml
 
-# 1. Default Deny (Unchanged)
+# 1. Default Deny 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -11,7 +11,7 @@ spec:
   - Ingress
   - Egress
 ---
-# 2. 'ollama' policy (Unchanged)
+# 2. 'ollama' policy 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -45,7 +45,7 @@ spec:
     - protocol: TCP
       port: 53
 ---
-# 3. 'backend' policy (Unchanged)
+# 3. 'backend' policy 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -80,7 +80,7 @@ spec:
     - protocol: TCP
       port: 53
 ---
-# 4. MODIFIED 'frontend' specific policy
+# 4. frontend policy
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -99,23 +99,20 @@ spec:
     - podSelector:
         matchLabels:
           app: backend
-  # THIS IS THE FIX: A more reliable rule to allow DNS lookups.
   - to:
     - namespaceSelector:
         matchLabels:
-          # This selects the kube-system namespace where DNS pods live
           kubernetes.io/metadata.name: kube-system
       podSelector:
         matchLabels:
           k8s-app: kube-dns
     ports:
-    # Allow both UDP and TCP for DNS
     - protocol: UDP
       port: 53
     - protocol: TCP
       port: 53
 ---
-# 5. MODIFIED 'openwebui' specific policy
+# 5. openwebui policy
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -134,16 +131,14 @@ spec:
     - podSelector:
         matchLabels:
           app: ollama
-  # THIS IS THE FIX: A more reliable rule to allow DNS lookups.
   - to:
     - namespaceSelector:
         matchLabels:
-          kubernetes.ioio/metadata.name: kube-system
+          kubernetes.io/metadata.name: kube-system
       podSelector:
         matchLabels:
           k8s-app: kube-dns
     ports:
-    # Allow both UDP and TCP for DNS
     - protocol: UDP
       port: 53
     - protocol: TCP

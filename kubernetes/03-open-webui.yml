@@ -4,14 +4,14 @@ kind: Service
 metadata:
   name: open-webui
 spec:
-  type: NodePort # Exposes the service on each Node's IP at a static port.
+  type: NodePort
   selector:
     app: open-webui
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 30080 # Access via http://<your-node-ip>:30080
+      nodePort: 30080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,10 +28,8 @@ spec:
         app: open-webui
     spec:
       volumes:
-        # 1. Define a volume that will be used in the pod
         - name: open-webui-data-volume
           persistentVolumeClaim:
-            # 2. Point it to the PVC you created in 01-persistent-volume-claims.yml
             claimName: open-webui-data-pvc
       containers:
       - name: open-webui
@@ -40,8 +38,11 @@ spec:
         - containerPort: 8080
         env:
         - name: OLLAMA_BASE_URL
-          value: "http://ollama:11434" # Connects to the ollama service
+          value: "http://ollama:11434"
         volumeMounts:
-        # 3. Mount the volume into the container at the correct path
         - name: open-webui-data-volume
           mountPath: /app/backend/data
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"

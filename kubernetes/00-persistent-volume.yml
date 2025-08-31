@@ -5,8 +5,20 @@ metadata:
   name: ollama-pv
 spec:
   capacity:
-    storage: 5Gi # Matches the request in the ollama StatefulSet
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
     path: "/mnt/data/ollama" # IMPORTANT: Create this directory on your node
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: open-webui-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/open-webui" # IMPORTANT: Create this directory on your node

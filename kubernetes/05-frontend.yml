@@ -4,14 +4,14 @@ kind: Service
 metadata:
   name: frontend
 spec:
-  type: NodePort # Exposes the service on each Node's IP at a static port.
+  type: NodePort
   selector:
     app: frontend
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30081 # Access via http://<your-node-ip>:30081
+      nodePort: 30081
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,3 +32,7 @@ spec:
         image: richardjoseph1/modelmanager-frontend-kube-openwebui:latest
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
