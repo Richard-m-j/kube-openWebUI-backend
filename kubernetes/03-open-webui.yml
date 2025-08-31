@@ -14,10 +14,11 @@ spec:
       nodePort: 30080
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: open-webui
 spec:
+  serviceName: "open-webui"
   replicas: 1
   selector:
     matchLabels:
@@ -27,10 +28,10 @@ spec:
       labels:
         app: open-webui
     spec:
-      volumes:
-        - name: open-webui-data-volume
-          persistentVolumeClaim:
-            claimName: open-webui-data-pvc
+      volumes: # Define the volume and link it to our PVC
+      - name: open-webui-data
+        persistentVolumeClaim:
+          claimName: open-webui-data-pvc
       containers:
       - name: open-webui
         image: ghcr.io/open-webui/open-webui:main 
@@ -38,9 +39,9 @@ spec:
         - containerPort: 8080
         env:
         - name: OLLAMA_BASE_URL
-          value: "http://ollama:11434"
-        volumeMounts:
-        - name: open-webui-data-volume
+          value: "http://ollama:11434" # Connects to the ollama service
+        volumeMounts: # Mount the volume defined above
+        - name: open-webui-data
           mountPath: /app/backend/data
         resources:
           requests:
