@@ -1,22 +1,24 @@
-# 06-ingress.yml
+# 06-ingress-openwebui-root.yml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: modelmanager-ingress
   annotations:
-    # If using NGINX Ingress Controller
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # Use regex to capture parts of the URL for rewriting
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # Optional: Add CORS headers if needed
+    
+    # Optional: CORS headers if needed by your applications
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
 spec:
-  ingressClassName: nginx  # Adjust if using different ingress controller
+  ingressClassName: nginx
   rules:
   - http:
       paths:
-      # Backend API routes
+      # Rule 1: Backend API for the Model Manager
+      # Path: /api/... -> backend service (port 8000)
+      # Rewrites "/api/models" to "/models" before sending to the backend pod.
       - path: /api(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
@@ -24,7 +26,13 @@ spec:
             name: backend
             port:
               number: 8000
-      # Frontend routes
+          # This annotation must be defined within the 'path' for per-path rewrites
+          annotations:
+            nginx.ingress.kubernetes.io/rewrite-target: /$2
+
+      # Rule 2: Frontend for the Model Manager
+      # Path: /modelmanager/... -> frontend service (port 80)
+      # Rewrites "/modelmanager/index.html" to "/index.html"
       - path: /modelmanager(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
@@ -32,12 +40,16 @@ spec:
             name: frontend
             port:
               number: 80
-      # Root path (if you have another service at /)
-      # Uncomment and modify if needed
-      # - path: /
-      #   pathType: Prefix
-      #   backend:
-      #     service:
-      #       name: your-root-service
-      #       port:
-      #         number: 80
+          annotations:
+            nginx.ingress.kubernetes.io/rewrite-target: /$2
+
+      # Rule 3: OpenWebUI at the Root
+      # Path: / -> open-webui service (port 8080)
+      # This is the catch-all rule and MUST be last. It has no rewrite.
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: open-webui
+            port:
+              number: 8080

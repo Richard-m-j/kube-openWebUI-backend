@@ -42,7 +42,7 @@ spec:
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /modelmanager  # Updated path for readiness probe
+            path: /
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 10
