@@ -13,7 +13,16 @@ spec:
   rules:
   - http:
       paths:
-      # Rule for the Frontend
+      # Rule for the Frontend's API
+      - path: /modelmanager/api(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+
+      # Rule for the Frontend App
       - path: /modelmanager(/|$)(.*)
         pathType: Prefix
         backend:
@@ -21,8 +30,8 @@ spec:
             name: frontend
             port:
               number: 80
+
       # Rule for Open WebUI (Catch-all)
-      # This rule should be last
       - path: /()(.*)
         pathType: Prefix
         backend:
