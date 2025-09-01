@@ -14,7 +14,7 @@ spec:
   - http:
       paths:
       # Rule for the Frontend's API
-      - path: /modelmanager/api(/|$)(.*)
+      - path: /modelmanager()(api/.*)
         pathType: Prefix
         backend:
           service:
