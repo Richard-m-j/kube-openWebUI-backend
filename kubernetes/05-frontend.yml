@@ -4,14 +4,13 @@ kind: Service
 metadata:
   name: frontend
 spec:
-  type: NodePort
+  type: ClusterIP 
   selector:
     app: frontend
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30081
 ---
 apiVersion: apps/v1
 kind: Deployment
