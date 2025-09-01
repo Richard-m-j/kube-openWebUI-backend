@@ -1,22 +1,15 @@
-# 06-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: main-ingress
+  name: open-webui-ingress
   annotations:
+    # This rewrite rule now only applies to this Ingress
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
   - http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
       - path: /webui(/|$)(.*)
         pathType: Prefix
         backend:
