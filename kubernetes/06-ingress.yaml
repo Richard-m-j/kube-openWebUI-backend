@@ -4,7 +4,7 @@ metadata:
   name: main-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1 # Changed to /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
@@ -14,7 +14,7 @@ spec:
   - http:
       paths:
       # Rule for the Frontend's API
-      - path: /modelmanager/(api/.*) # Updated path
+      - path: /modelmanager/api(/|$)(.*)
         pathType: Prefix
         backend:
           service:
