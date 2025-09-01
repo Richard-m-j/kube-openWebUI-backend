@@ -58,9 +58,3 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 10
-        startupProbe:
-          httpGet:
-            path: /
-            port: 8080
-          failureThreshold: 30
-          periodSeconds: 10
