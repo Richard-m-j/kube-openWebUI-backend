@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: frontend
 spec:
-  type: ClusterIP 
+  type: ClusterIP
   selector:
     app: frontend
   ports:
@@ -42,7 +42,7 @@ spec:
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /
+            path: /modelmanager  # Updated path for readiness probe
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 10

@@ -1,41 +1,43 @@
+# 06-ingress.yml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: main-ingress
+  name: modelmanager-ingress
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    # If using NGINX Ingress Controller
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # Optional: Add CORS headers if needed
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx  # Adjust if using different ingress controller
   rules:
   - http:
       paths:
-      # Rule for the Frontend's API
-      - path: /modelmanager()(api/.*)
-        pathType: Prefix
+      # Backend API routes
+      - path: /api(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: backend
             port:
               number: 8000
-
-      # Rule for the Frontend App
+      # Frontend routes
       - path: /modelmanager(/|$)(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: frontend
             port:
               number: 80
-
-      # Rule for Open WebUI (Catch-all)
-      - path: /()(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: open-webui
-            port:
-              number: 8080
+      # Root path (if you have another service at /)
+      # Uncomment and modify if needed
+      # - path: /
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: your-root-service
+      #       port:
+      #         number: 80
