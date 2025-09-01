@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-ingress
+  annotations:
+    # Use regular expressions for path matching
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # For paths that match, rewrite the URL to the content of the 2nd capture group
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # Other recommended annotations
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      # Rule for Open WebUI
+      # Matches /webui, /webui/, or /webui/anything
+      # Captures "anything" into the $2 variable and rewrites the path to /anything
+      - path: /webui(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: open-webui
+            port:
+              number: 8080
+
+      # Rule for the Frontend (Catch-all)
+      # This rule should be last
+      - path: /()(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
