@@ -1,10 +1,9 @@
-# 06-ingress-final-corrected.yaml
+# 06-ingress-proxy-in-frontend.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: modelmanager-ingress
   annotations:
-    # Set use-regex to false as we are using simple prefix matching
     nginx.ingress.kubernetes.io/use-regex: "false"
     # Optional: CORS headers
     nginx.ingress.kubernetes.io/enable-cors: "true"
@@ -15,17 +14,9 @@ spec:
   rules:
   - http:
       paths:
-      # Rule 1: Backend API - Routes /api/... traffic to the backend
-      # Using a Prefix path type ensures the full path is sent to the backend service
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: backend
-            port:
-              number: 8000
-
-      # Rule 2: Frontend for Model Manager
+      # Rule 1: Frontend for Model Manager
+      # Routes all /modelmanager/... traffic to the frontend service.
+      # The NGINX in the frontend will handle serving the app AND proxying API calls.
       - path: /modelmanager
         pathType: Prefix
         backend:
@@ -34,7 +25,8 @@ spec:
             port:
               number: 80
 
-      # Rule 3: OpenWebUI at the Root - This is the default
+      # Rule 2: OpenWebUI at the Root
+      # This rule must be last to act as the default.
       - path: /
         pathType: Prefix
         backend:
