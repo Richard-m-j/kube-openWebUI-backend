@@ -1,13 +1,12 @@
-# 06-ingress-corrected-and-valid.yml
+# 06-ingress-final-corrected.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: modelmanager-ingress
   annotations:
-    # Use-regex is still helpful for precise path matching.
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    
-    # Optional: CORS headers remain at the top level.
+    # Set use-regex to false as we are using simple prefix matching
+    nginx.ingress.kubernetes.io/use-regex: "false"
+    # Optional: CORS headers
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
@@ -16,11 +15,10 @@ spec:
   rules:
   - http:
       paths:
-      # Rule 1: Backend API for Model Manager
-      # Routes /api/... traffic directly to the backend service.
-      # The backend container is already listening for paths starting with /api.
-      - path: /api(/.*)
-        pathType: ImplementationSpecific
+      # Rule 1: Backend API - Routes /api/... traffic to the backend
+      # Using a Prefix path type ensures the full path is sent to the backend service
+      - path: /api
+        pathType: Prefix
         backend:
           service:
             name: backend
@@ -28,19 +26,15 @@ spec:
               number: 8000
 
       # Rule 2: Frontend for Model Manager
-      # Routes /modelmanager/... traffic directly to the frontend service.
-      # The NGINX in the frontend container is configured to serve the app from this path.
-      - path: /modelmanager(/.*)
-        pathType: ImplementationSpecific
+      - path: /modelmanager
+        pathType: Prefix
         backend:
           service:
             name: frontend
             port:
               number: 80
 
-      # Rule 3: OpenWebUI at the Root
-      # Routes all other traffic (/) to the open-webui service.
-      # This rule must be last to act as the default.
+      # Rule 3: OpenWebUI at the Root - This is the default
       - path: /
         pathType: Prefix
         backend:
