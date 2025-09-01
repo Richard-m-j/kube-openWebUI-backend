@@ -34,7 +34,7 @@ spec:
           claimName: open-webui-data-pvc
       containers:
       - name: open-webui
-        image: ghcr.io/open-webui/open-webui:main 
+        image: ghcr.io/open-webui/open-webui:main
         ports:
         - containerPort: 8080
         env:
@@ -47,3 +47,20 @@ spec:
           requests:
             cpu: "250m"
             memory: "512Mi"
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10

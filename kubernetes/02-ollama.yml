@@ -38,3 +38,20 @@ spec:
         volumeMounts:
         - name: ollama-data
           mountPath: /ollama/.ollama
+        livenessProbe:
+          tcpSocket:
+            port: 11434
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          failureThreshold: 30
+          periodSeconds: 10
