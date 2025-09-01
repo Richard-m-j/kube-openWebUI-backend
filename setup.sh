@@ -23,3 +23,5 @@ until sudo -u ubuntu kubectl get pods -n kube-system | grep -Ev 'STATUS|Running'
     sleep 5
 done
 echo "Kubernetes control-plane setup complete."
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
