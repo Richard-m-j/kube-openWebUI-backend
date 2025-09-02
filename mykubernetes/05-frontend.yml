@@ -1,8 +1,10 @@
+# 05-frontend.yml
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend
 spec:
+  type: ClusterIP
   selector:
     app: frontend
   ports:
@@ -29,3 +31,18 @@ spec:
         image: richardjoseph1/modelmanager-frontend-kube-openwebui:latest
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10

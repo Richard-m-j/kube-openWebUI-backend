@@ -1,3 +1,4 @@
+# 04-backend.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,8 +8,8 @@ spec:
     app: backend
   ports:
     - protocol: TCP
-      port: 8000 # The port the service will listen on
-      targetPort: 8080 
+      port: 8000
+      targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,7 +29,22 @@ spec:
       - name: modelmanager-backend
         image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
         ports:
-        - containerPort: 8080 
+        - containerPort: 8080
         env:
         - name: OLLAMA_HOST
           value: "http://ollama:11434"
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /api/models
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
