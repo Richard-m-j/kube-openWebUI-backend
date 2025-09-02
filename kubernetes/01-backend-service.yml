@@ -1,12 +1,11 @@
-
 apiVersion: v1
-kind: PersistentVolume
+kind: Service
 metadata:
-  name: ollama-pv
+  name: backend
 spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data/ollama" 
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8080
