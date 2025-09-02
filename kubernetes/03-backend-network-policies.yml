@@ -22,9 +22,9 @@ spec:
     - podSelector:
         matchLabels:
           app: ollama
-      ports:
-      - protocol: TCP
-        port: 11434
+    ports:
+    - protocol: TCP
+      port: 11434
   - to:
     - namespaceSelector:
         matchLabels:
