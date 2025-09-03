@@ -51,7 +51,12 @@ func listModelsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+
+	// Corrected: Check the error returned by io.Copy
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		log.Printf("Failed to copy response body in listModelsHandler: %v", err)
+		// Note: We can't send a new HTTP error here as headers have been written.
+	}
 }
 
 // pullModelHandler with more robust checks
@@ -93,7 +98,12 @@ func pullModelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+
+	// Corrected: Check the error returned by io.Copy
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		log.Printf("Failed to copy response body in pullModelHandler: %v", err)
+		// Note: We can't send a new HTTP error here as headers have been written.
+	}
 }
 
 func main() {
