@@ -122,7 +122,7 @@ jobs:
       # ADDED: This step updates the image tag in your deployment file.
       # Assumes your file is located at 'kubernetes/deployment.yaml'.
       run: |
-        sed -i "s|image: .*|image: richardjoseph1/modelmanager-backend-kube-openwebui:${{ github.sha }}|g" kubernetes/deployment.yaml
+        sed -i "s|image: .*|image: richardjoseph1/modelmanager-backend-kube-openwebui:${{ github.sha }}|g" kubernetes/02-backend-deployment.yaml
 
     - name: Commit and push manifest changes
       # ADDED: This step commits the updated manifest file back to your main branch.
