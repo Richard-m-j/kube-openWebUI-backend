@@ -15,7 +15,7 @@ spec:
       containers:
       - name: modelmanager-backend
         # CHANGED: Replaced ':latest' with a stable placeholder for the CI/CD pipeline.
-        image: richardjoseph1/modelmanager-backend-kube-openwebui:placeholder
+        image: richardjoseph1/modelmanager-backend-kube-openwebui:c1058b45e66b0b33715d953cbb20f37c9f41e1e6
         
         imagePullPolicy: Always
         
