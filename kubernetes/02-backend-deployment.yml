@@ -17,8 +17,6 @@ spec:
         # CHANGED: Replaced ':latest' with a stable placeholder for the CI/CD pipeline.
         image: richardjoseph1/modelmanager-backend-kube-openwebui:c1058b45e66b0b33715d953cbb20f37c9f41e1e6
         
-        imagePullPolicy: Always
-        
         ports:
         - containerPort: 8080
         env:
@@ -26,10 +24,10 @@ spec:
           value: "http://ollama:11434"
         resources:
           requests:
-            cpu: "250m"
+            cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "500m"
+            cpu: "250m"
             memory: "512Mi"
         livenessProbe:
           tcpSocket:
