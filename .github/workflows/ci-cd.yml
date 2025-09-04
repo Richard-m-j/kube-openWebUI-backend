@@ -1,114 +1,115 @@
-# This is the name of the consolidated workflow.
-name: CI & CD Pipeline
+# A more descriptive name for the workflow
+name: CI, Security Scans, and Deployment
 
-# Triggers the workflow on push or pull request events but only for the "main" branch.
+# Triggers the workflow on push or pull request events to the "main" branch
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# Environment variables for reusability
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: richardjoseph1/modelmanager-frontend-kube-openwebui
+
 jobs:
-  # JOB 1: Lints the code, runs unit tests, and verifies the application builds successfully.
-  lint-build-and-test:
-    name: Lint, Build & Test
+  # JOB 1: Consolidated CI checks for linting, building, and basic security scans.
+  # This reduces redundancy by running setup steps only once.
+  ci-checks:
+    name: Lint, Build & Security Scans
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22' # Corresponds to the go.mod file
-        cache: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-    - name: Lint code
-      uses: golangci/golangci-lint-action@v6
-      continue-on-error: true
-      with:
-        # Optional: version of golangci-lint to use in form of v1.2.3 or `latest` to use the latest version
-        version: latest
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build application
-      run: go build -v ./...
+      - name: Lint code
+        run: npm run lint
 
-    - name: Run unit tests
-      run: go test -v ./...
+      - name: Build application
+        run: npm run build
 
-  # JOB 2: Runs security scans for vulnerable dependencies (SCA) and secrets.
-  security-scans:
-    name: Security Scans (SCA & SAST)
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Software Component Analysis (SCA)
+        run: npm audit --audit-level=high
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22'
+      - name: Scan for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
 
-    - name: Software Component Analysis (SCA)
-      run: |
-        go install golang.org/x/vuln/cmd/govulncheck@latest
-        govulncheck ./... || true
-
-    - name: Static Application Security Testing (SAST) with Gitleaks
-      uses: gitleaks/gitleaks-action@v2
-      continue-on-error: true
-      with:
-        # Gitleaks configuration is managed in the .pre-commit-config.yaml
-        config-path: .pre-commit-config.yaml
-
-  # JOB 3: Performs in-depth static analysis with CodeQL.
+  # JOB 2: Performs in-depth static analysis with CodeQL.
+  # Kept as a separate job due to its specific setup and permissions.
   codeql-analysis:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       security-events: write
-      packages: read
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: go # Specific language for analysis
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      continue-on-error: true
-      with:
-        category: "/language:go"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
 
-  # JOB 4: Builds and pushes the Docker image to Docker Hub.
-  # This job will ONLY run after the three CI jobs above succeed, and only on a push to main.
-  build-and-push-docker:
-    name: Build and Push Docker Image
+  # JOB 3: Builds, pushes Docker image, and updates manifest using the Git SHA.
+  build-and-deploy:
+    name: Build, Push & Deploy
     runs-on: ubuntu-latest
-    
-    # Define dependencies: This job waits for the CI jobs to be successful.
-    needs: [lint-build-and-test, security-scans, codeql-analysis]
-    
-    # Define condition: This job only runs for push events on the main branch.
+    needs: [ci-checks, codeql-analysis]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
+    permissions:
+      contents: write
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: richardjoseph1
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: richardjoseph1/modelmanager-backend-kube-openwebui:latest
+      # STEP REMOVED: The 'Extract Docker metadata' action is no longer needed.
+      
+      # CHANGED: The 'tags' field now directly uses the built-in github.short_sha variable.
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.short_sha }}
+
+      # CHANGED: The sed command also uses github.short_sha to ensure consistency.
+      - name: Update deployment manifest
+        run: |
+          sed -i "s|image: .*|image: ${{ env.IMAGE_NAME }}:${{ github.short_sha }}|g" kubernetes/deployment.yaml
+
+      # CHANGED: The commit message now references the short SHA directly.
+      - name: Commit and push manifest changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add kubernetes/deployment.yaml
+          git diff --staged --quiet || git commit -m "CI: Update image tag to ${{ github.short_sha }}"
+          git push

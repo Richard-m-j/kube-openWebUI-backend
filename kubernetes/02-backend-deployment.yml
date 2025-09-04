@@ -1,4 +1,3 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +14,11 @@ spec:
     spec:
       containers:
       - name: modelmanager-backend
-        image: richardjoseph1/modelmanager-backend-kube-openwebui:latest
+        # CHANGED: Replaced ':latest' with a stable placeholder for the CI/CD pipeline.
+        image: richardjoseph1/modelmanager-backend-kube-openwebui:placeholder
+        
+        imagePullPolicy: Always
+        
         ports:
         - containerPort: 8080
         env:
