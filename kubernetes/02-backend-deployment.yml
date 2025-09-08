@@ -24,10 +24,10 @@ spec:
           value: "http://ollama:11434"
         resources:
           requests:
-            cpu: "100m"
+            cpu: "20m"
             memory: "256Mi"
           limits:
-            cpu: "250m"
+            cpu: "50m"
             memory: "512Mi"
         livenessProbe:
           tcpSocket:
