@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Code-Turtle Reviewer
-        uses: richard-m-j/code-turtle-reviewer@v1.0.1
+        uses: richard-m-j/code-turtle-reviewer@v1.0.3
         with:
           github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
           pinecone_api_key: ${{ secrets.PINECONE_API_KEY }}
