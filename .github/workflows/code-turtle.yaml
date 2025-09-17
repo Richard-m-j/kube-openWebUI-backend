@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Code-Turtle Indexer
-        uses: richard-m-j/code-turtle-indexer@v1
+        uses: richard-m-j/code-turtle-indexer@v1.0.0
         with:
           pinecone_api_key: ${{ secrets.PINECONE_API_KEY }}
           pinecone_environment: ${{ secrets.PINECONE_ENVIRONMENT }}
@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Code-Turtle Reviewer
-        uses: richard-m-j/code-turtle-reviewer@v1
+        uses: richard-m-j/code-turtle-reviewer@v1.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pinecone_api_key: ${{ secrets.PINECONE_API_KEY }}
