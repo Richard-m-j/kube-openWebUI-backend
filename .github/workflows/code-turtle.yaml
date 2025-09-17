@@ -26,11 +26,14 @@ jobs:
   reviewer:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    
+    permissions:
+      pull-requests: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Fetch all history for accurate diffs
           fetch-depth: 0
 
       - name: Run Code-Turtle Reviewer
