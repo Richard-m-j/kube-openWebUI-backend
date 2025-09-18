@@ -106,12 +106,3 @@ func pullModelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	http.HandleFunc("/api/models", listModelsHandler)
-	http.HandleFunc("/api/models/pull", pullModelHandler)
-
-	log.Println("Starting server on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Could not start server: %s\n", err)
-	}
-}
