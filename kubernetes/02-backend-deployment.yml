@@ -15,7 +15,7 @@ spec:
       containers:
       - name: modelmanager-backend
         # CHANGED: Replaced ':latest' with a stable placeholder for the CI/CD pipeline.
-        image: richardjoseph1/modelmanager-backend-kube-openwebui:a7a65821cdfaf7ea584835a4cd6360f21680042e
+        image: richardjoseph1/modelmanager-backend-kube-openwebui:09e781b6bae91ed16d638c209adb584dadcdabb1
         
         ports:
         - containerPort: 8080
