@@ -10,4 +10,7 @@ func TestDummy(t *testing.T) {
 	if 1+1 != 2 {
 		t.Errorf("This dummy test should not fail")
 	}
+	if true != true {
+		t.Errorf("This dummy test should not fail")
+	}
 }
