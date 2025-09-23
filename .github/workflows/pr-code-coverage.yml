@@ -1,0 +1,29 @@
+name: 'Code Coverage Report'
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  code-coverage-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Run tests with coverage
+        run: go test -v -coverprofile=coverage.out ./tests/...
+
+      - name: Post coverage report to PR
+        uses: anmol098/go-coverage-action@v1.0.2
+        with:
+          # The location of the coverage file
+          coverage-file: coverage.out
+          # The GitHub token is required to post comments on the PR
+          github-token: ${{ secrets.GITHUB_TOKEN }}
