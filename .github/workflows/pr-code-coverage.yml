@@ -21,9 +21,7 @@ jobs:
         run: go test -v -coverprofile=coverage.out ./tests/...
 
       - name: Post coverage report to PR
-        uses: anmol098/go-coverage-action@v1.0.2
+        uses: Misha-K-S/go-coverage-report@v1.5.0
         with:
-          # The location of the coverage file
           coverage-file: coverage.out
-          # The GitHub token is required to post comments on the PR
           github-token: ${{ secrets.GITHUB_TOKEN }}
