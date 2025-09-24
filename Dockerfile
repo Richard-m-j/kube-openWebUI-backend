@@ -17,7 +17,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
 #-------------------------------------------------------------------------
 
 # Stage 2: The final hardened image
-FROM alpine:latest
+FROM alpine:3.20.1
 
 # Add metadata labels using OCI standard
 ARG APP_VERSION
